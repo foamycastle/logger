@@ -38,17 +38,6 @@ final class LoggerConfiguration extends BaseConfig implements LoggerSetConfig, L
         return $this;
     }
 
-    static function fromConfigFile(string $path): static
-    {
-        if(!file_exists($path)){
-            return new LoggerConfiguration();
-        }
-        $configFunction=\Closure::fromCallable(include($path));
-        $config=new LoggerConfiguration();
-        $configFunction($config);
-        return $config;
-    }
-
     function getPath(): ?string
     {
         return ($this->get(self::KEY_PATH) ?? null);
