@@ -13,4 +13,5 @@ interface LoggerGetConfig
 {
     function getPath(): ?string;
     function getFormat(): ?string;
+    function getLoggerName(): ?string;
 }

@@ -16,8 +16,10 @@ final class LoggerConfiguration extends BaseConfig implements LoggerSetConfig, L
     public const FORMAT_DEFAULT = '%datetime% %level%: %message% %context% %extra%';
     private const KEY_PATH = 'logger_path';
     private const KEY_FORMAT = 'logger_format';
+    private const KEY_NAME = 'logger_name';
     private $path;
     private $format;
+    private $name;
 
     public function __construct()
     {
@@ -57,4 +59,22 @@ final class LoggerConfiguration extends BaseConfig implements LoggerSetConfig, L
     {
         return ($this->get(self::KEY_FORMAT) ?? null);
     }
+
+    /**
+     * @return mixed
+     */
+    public function getLoggerName(): ?string
+    {
+        return $this->get(self::KEY_NAME);
+    }
+
+    /**
+     * @param mixed $name
+     */
+    public function setLoggerName($name): LoggerSetConfig
+    {
+        $this->set(self::KEY_NAME, $name);
+        return $this;
+    }
+
 }
