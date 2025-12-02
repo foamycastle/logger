@@ -13,6 +13,7 @@ use Foamycastle\config\Logger\Method;
 
 final class LoggerConfiguration extends BaseConfig implements LoggerSetConfig, LoggerGetConfig
 {
+    public const NAME='logger';
     public const FORMAT_DEFAULT = '%datetime% %level%: %message% %context% %extra%';
     public const KEY_PATH = 'logger_path';
     public const KEY_FORMAT = 'logger_format';
@@ -21,9 +22,9 @@ final class LoggerConfiguration extends BaseConfig implements LoggerSetConfig, L
     private $format;
     private $name;
 
-    public function __construct()
+    public function __construct(?string $name = null)
     {
-        parent::__construct('_foamycastle_logger');
+        parent::__construct($name ?? self::NAME);
     }
 
     function setPath(string $path): LoggerSetConfig
@@ -68,9 +69,9 @@ final class LoggerConfiguration extends BaseConfig implements LoggerSetConfig, L
 
     /**
      * @param array{logger_name?:string,logger_path?:string,logger_format?:string} $config
-     * @return void
+     * @return self
      */
-    public static function fromArray(array $config):self
+    public static function fromArray(array $config): static
     {
         $instance=new LoggerConfiguration();
         $instance->set(
