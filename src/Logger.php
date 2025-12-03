@@ -100,11 +100,11 @@ class Logger extends LoggerBase
         preg_match_all('/%([\w-]*?)%/', $this->format, $matches);
         $matches = $matches[1] ?? [];
         $vars = $this->config->getVars() + compact('level', 'message', 'context', 'extra', 'datetime');
+        $message = $this->format;
         foreach ($matches as $match) {
             if(isset($vars[$match]) && is_array($vars[$match])){
                 $vars[$match] = json_encode($vars[$match]);
             }
-            $message = $this->format;
             $message = str_replace('%'.$match.'%', $vars[$match] ?? '', $message);
         }
         return $message;
