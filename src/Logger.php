@@ -96,6 +96,16 @@ class Logger extends LoggerBase
     private function prepareMessage(string $level, string $message, array $context = [],string $extra=''): string
     {
         $timezone = new \DateTimeZone(env('TZ', 'UTC'));
-        return strtr($this->format, $this->config->getVars());
+        $datetime = new \DateTime('now', $timezone)->format('Y-m-d H:i:s');;
+        preg_match_all('/%([\w-]*?)%/', $this->format, $matches);
+        $matches = $matches[1] ?? [];
+        $vars = $this->config->getVars() + compact('level', 'message', 'context', 'extra', 'datetime');
+        foreach ($matches as $match) {
+            if(isset($vars[$match]) && is_array($vars[$match])){
+                $vars[$match] = json_encode($vars[$match]);
+            }
+            $message = str_replace('%'.$match.'%', $vars[$match] ?? '', $message);
+        }
+        return $message;
     }
 }
