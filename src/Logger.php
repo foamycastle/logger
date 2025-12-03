@@ -106,7 +106,7 @@ class Logger extends LoggerBase
                 $vars[$match] = json_encode($vars[$match]);
             }
             if(isset($vars[$match]) && ($vars[$match]) instanceof \Closure){
-                $vars[$match] = $vars[$match](...);
+                $vars[$match] = $vars[$match]();
             }
             $message = str_replace('%'.$match.'%', $vars[$match] ?? '', $message);
         }
