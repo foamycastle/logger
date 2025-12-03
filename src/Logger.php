@@ -95,21 +95,52 @@ class Logger extends LoggerBase
 
     private function prepareMessage(string $level, string $message, array $context = [],string $extra=''): string
     {
-        $timezone = new \DateTimeZone(env('TZ', 'UTC'));
-        $datetime = new \DateTime('now', $timezone)->format('Y-m-d H:i:s');;
-        preg_match_all('/%([\w-]*?)%/', $this->format, $matches);
-        $matches = $matches[1] ?? [];
-        $vars = $this->config->getVars() + compact('level', 'message', 'context', 'extra', 'datetime');
-        $message = $this->format;
-        foreach ($matches as $match) {
-            if(isset($vars[$match]) && is_array($vars[$match])){
-                $vars[$match] = json_encode($vars[$match]);
+        preg_match_all('/%(\w+[\w+.]+\.*\w+)*%/', $this->format, $matches);
+        $localVars = compact('level','extra', "message");
+        $arrayVars = $this->getArrayVars(compact('context'));
+        $configVars = $this->config->getVars();
+        array_walk(
+            $configVars,
+            function ($value,$key) use (&$configVars)  {
+                if($value instanceof \Closure){
+                    $configVars[$key] = $value();
+                }
             }
-            if(isset($vars[$match]) && ($vars[$match]) instanceof \Closure){
-                $vars[$match] = $vars[$match]();
+        );
+        $localVars = array_merge($localVars,$configVars);
+        foreach ($matches[0] as $rawMatch) {
+            $match = trim($rawMatch, '%');
+            if(strpos($match,'.')!==false){
+                $localVars[$rawMatch] = $this->data_get($arrayVars, $match);
+            }else{
+                $localVars[$rawMatch] = $arrayVars[$match] ?? $localVars[$match] ?? '';
             }
-            $message = str_replace('%'.$match.'%', $vars[$match] ?? '', $message);
         }
+        $message = strtr($this->format, $localVars);
         return $message;
+    }
+    private function getArrayVars(array $context): array
+    {
+        return array_filter($this->config->getVars()+$context, fn($value)=>is_array($value) );
+    }
+    private function data_get($target, $key, $default = null)
+    {
+        if ($key === null) {
+            return $target;
+        }
+
+        $key = is_array($key) ? $key : explode('.', $key);
+
+        foreach ($key as $segment) {
+            if (is_array($target) && array_key_exists($segment, $target)) {
+                $target = $target[$segment];
+            } else {
+                return $default;
+            }
+        }
+        if($target instanceof \Closure){
+            return $target();
+        }
+        return $target;
     }
 }
