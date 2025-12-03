@@ -105,6 +105,9 @@ class Logger extends LoggerBase
             if(isset($vars[$match]) && is_array($vars[$match])){
                 $vars[$match] = json_encode($vars[$match]);
             }
+            if(isset($vars[$match]) && is_callable($vars[$match])){
+                $vars[$match] = $vars[$match](...);
+            }
             $message = str_replace('%'.$match.'%', $vars[$match] ?? '', $message);
         }
         return $message;
