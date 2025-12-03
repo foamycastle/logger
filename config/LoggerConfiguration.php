@@ -21,6 +21,7 @@ final class LoggerConfiguration extends BaseConfig implements LoggerSetConfig, L
     private $path;
     private $format;
     private $name;
+    private $vars=[];
 
     public function __construct(?string $name = null)
     {
@@ -66,6 +67,18 @@ final class LoggerConfiguration extends BaseConfig implements LoggerSetConfig, L
         $this->set(self::KEY_NAME, $name);
         return $this;
     }
+
+    function getVars(): array
+    {
+        return $this->get('vars') ?? [];
+    }
+
+    function setVars(array $vars): LoggerSetConfig
+    {
+        $this->set('vars', $vars);
+        return $this;
+    }
+
 
     /**
      * @param array{logger_name?:string,logger_path?:string,logger_format?:string} $config

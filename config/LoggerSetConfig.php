@@ -14,4 +14,5 @@ interface LoggerSetConfig
     function setPath(string $path): LoggerSetConfig;
     function setFormat(string $format): LoggerSetConfig;
     function setLoggerName(string $name): LoggerSetConfig;
+    function setVars(array $vars):LoggerSetConfig;
 }

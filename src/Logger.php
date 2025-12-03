@@ -44,7 +44,7 @@ class Logger extends LoggerBase
     /**
      * @inheritDoc
      */
-    public function __construct(LoggerGetConfig&LoggerSetConfig $config)
+    public function __construct(LoggerConfiguration $config)
     {
         $this->config = $config;
         $this->path = realpath($config->getPath()) ?: sys_get_temp_dir().DIRECTORY_SEPARATOR.basename($config->getPath());
@@ -96,12 +96,6 @@ class Logger extends LoggerBase
     private function prepareMessage(string $level, string $message, array $context = [],string $extra=''): string
     {
         $timezone = new \DateTimeZone(env('TZ', 'UTC'));
-        return strtr($this->format, [
-            '%level%' => $level,
-            '%context%' => json_encode($context),
-            '%message%' => $message,
-            '%datetime%' => new \DateTimeImmutable('now', $timezone)->format('Y-m-d H:i:s'),
-            '%extra%' => $extra
-        ]);
+        return strtr($this->format, $this->config->getVars());
     }
 }
