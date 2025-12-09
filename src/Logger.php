@@ -89,11 +89,21 @@ class Logger extends LoggerBase
 
     public function log($level, \Stringable|string $message, array $context = []): void
     {
-        $message = $this->prepareMessage($level, $message, $context);
+        $message = $this->prepareMessage($message, $context);
+        $message = $this->prepareLogString($level, $message, $context);
         $this->stream && fwrite($this->stream, $message . PHP_EOL);
     }
 
-    private function prepareMessage(string $level, string $message, array $context = [],string $extra=''): string
+    private function prepareMessage(string $message, array $context):string
+    {
+        $replacements=[];
+        if(preg_match_all('/%(\w+[\w+.]+\.*\w+)*%/', $message, $matches)==0) return $message;
+        foreach ($matches[0] as $rawMatch) {
+            $replacements[$rawMatch] = $this->data_get($context, trim($rawMatch, '%')) ?? '';
+        }
+        return strtr($message, $replacements);
+    }
+    private function prepareLogString(string $level, string $message, array $context = [], string $extra=''): string
     {
         preg_match_all('/%(\w+[\w+.]+\.*\w+)*%/', $this->format, $matches);
         $localVars = compact('level','extra', "message");
